@@ -14,32 +14,32 @@ public class Download implements Runnable{
         this.link = link;
         this.out = out;
 
-        t = new Thread(this);
-        System.out.println("New thread: " + t);
-        t.start(); // Starting the threa
+//        t = new Thread(this);
+//        System.out.println("New thread: " + t);
+//        t.start(); // Starting the threa
     }
 
-    private boolean exit;
-    public void setExit(boolean exit)
-    {
-        this.exit = exit;
-    }
-
-    // for stopping the thread
-    public void stop()
-    {
-        exit = true;
-    }
+//    private boolean exit;
+//    public void setExit(boolean exit)
+//    {
+//        this.exit = exit;
+//    }
+//
+//    // for stopping the thread
+//    public void stop()
+//    {
+//        exit = true;
+//    }
 
     @Override
     public void run()
     {
         try {
-            while (!Thread.interrupted()) {
-//                System.out.println("Thread is running");
-                t.interrupt();
-            }
-            System.out.println("Thread has stopped.");
+//            while (!Thread.interrupted()) {
+////                System.out.println("Thread is running");
+//                t.interrupt();
+//            }
+//            System.out.println("Thread has stopped.");
 
             URL url =  new URL(link);
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -62,13 +62,14 @@ public class Download implements Runnable{
             bout.close();
             in.close();
             System.out.println("download complete");
-            t.stop();
+//            t.stop();
 
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
+
 
     }
 

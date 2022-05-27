@@ -1,17 +1,15 @@
 package com.dailycodebuffer.filemngt;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseData {
-
-    private String fileName;
-    private String downloadURL;
-    private String fileType;
-    private long fileSize;
+public class ResponseResult {
+private List<Float> similarity = new ArrayList<Float>();
 
 }

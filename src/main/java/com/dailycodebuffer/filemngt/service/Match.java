@@ -1,12 +1,8 @@
 package com.dailycodebuffer.filemngt.service;
 
 import Luxand.FSDK;
-import com.dailycodebuffer.filemngt.Download;
-import com.dailycodebuffer.filemngt.controller.AttachmentController;
 import com.dailycodebuffer.filemngt.entity.Attachment;
-import org.springframework.data.repository.query.Param;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,38 +13,38 @@ import java.util.List;
 
 public class Match {
 
-        public final java.util.List<tes.TFaceRecord> FaceList = new ArrayList<tes.TFaceRecord>();
-        public int FaceDetectionThreshold = 2;
-        public int FARValue = 100;
-        public static final int width = 640;
-        public static final int height = 480;
-        private final DefaultListModel listModel = new DefaultListModel();
-        private final java.util.List<ImageIcon> listImages = new ArrayList<ImageIcon>();
-        public final java.util.List<String> listStrings = new ArrayList<String>();
-        private boolean cleaning = false;
+    public final java.util.List<tes.TFaceRecord> FaceList = new ArrayList<tes.TFaceRecord>();
+    public int FaceDetectionThreshold = 2;
+    public int FARValue = 100;
+    public static final int width = 640;
+    public static final int height = 480;
+    private final DefaultListModel listModel = new DefaultListModel();
+    private final java.util.List<ImageIcon> listImages = new ArrayList<ImageIcon>();
+    public final java.util.List<String> listStrings = new ArrayList<String>();
+    private boolean cleaning = false;
+    public float similar;
+    public String hasil;
 
+    class TFaceRecord {
+        public FSDK.FSDK_FaceTemplate.ByReference FaceTemplate;
+        public FSDK.TFacePosition.ByReference FacePosition;
+        public FSDK.FSDK_Features.ByReference FacialFeatures;
+        public String ImageFileName;
+        public FSDK.HImage image;
+        public FSDK.HImage faceImage;
+    }
 
+    class Sortable {
+        public float similarity;
+        public int index;
+    }
 
+    @Value("${luxand.key}")
+    private String key;
 
-        class TFaceRecord {
-            public FSDK.FSDK_FaceTemplate.ByReference FaceTemplate;
-            public FSDK.TFacePosition.ByReference FacePosition;
-            public FSDK.FSDK_Features.ByReference FacialFeatures;
-            public String ImageFileName;
-            public FSDK.HImage image;
-            public FSDK.HImage faceImage;
-        }
-
-
-        class Sortable {
-            public float similarity;
-            public int index;
-        }
-
-
-        public void init() {
+    public void init() {
         try {
-            int r = FSDK.ActivateLibrary("dTpn0XbVZQhGU1AWvlsSFnBGoDaIqwOQe7EqiEYwwXdeuSv5RRXXtsYxAaIvvJh95WFo/F7pTpxAnGSCrE37XRPS9F4cYEjfaTDhnf3pZwt83NRAuABSpEXp+WBejj+I6I6oM88tOLDyV3MJXs6/Gee5R+RAiaFjQCnLbzxiyKc=");
+            int r = FSDK.ActivateLibrary(key);
             if (r != FSDK.FSDKE_OK) {
                 System.out.println("error1");
             }
@@ -63,35 +59,25 @@ public class Match {
 
     }
 
-     AttachmentService attachmentService;
+    AttachmentService attachmentService;
     String fileid;
-        public void menuEnrollFace(List<Attachment> imageList) {
+
+    public void menuEnrollFace(List<Attachment> imageList, String fileTest) throws Exception {
         FSDK.SetFaceDetectionParameters(false, true, 384);
         FSDK.SetFaceDetectionThreshold(FaceDetectionThreshold);
 
-        for (Attachment imageBase64 : imageList) {
-
-//            System.out.println(imageBase64);
-//            AttachmentController attachmentController = new AttachmentController(attachmentService);
-//            attachmentController.getFileid();
-            String link = "http://localhost:8080/download/11";
-            File out = new File("C:\\Me'\\Intellij\\tes\\coba\\coba\\tes.jpg");
-//            new Thread (new Download(link,out)).start();
-//            Thread.;
-
-            File sample = new File("C:\\Me'\\Intellij\\tes\\coba\\coba\\tes.jpg");
-
+        for (Attachment image : imageList) {
             tes.TFaceRecord fr = new tes.TFaceRecord();
-            fr.ImageFileName = String.valueOf(sample.getAbsoluteFile());
+            fr.ImageFileName = image.getPath();
             fr.image = new FSDK.HImage();
 
 
-            int res = FSDK.LoadImageFromFile(fr.image, String.valueOf(sample));
+            int res = FSDK.LoadImageFromFile(fr.image, image.getPath());
             if (res != FSDK.FSDKE_OK) {
-                System.out.println("Cannot load " + sample + " with error " + res);
+                System.out.println("Cannot load " + image.getFileName() + " with error " + res);
                 return;
             }
-            System.out.println("Enrolling '" + sample);
+            System.out.println("Enrolling '" + image.getFileName());
             fr.FacePosition = new FSDK.TFacePosition.ByReference();
             res = FSDK.DetectFace(fr.image, fr.FacePosition);
             if (res != FSDK.FSDKE_OK) {
@@ -143,20 +129,24 @@ public class Match {
             listStrings.add(fr.ImageFileName);
             listModel.addElement(FaceList.size() - 1);
 
-            System.out.println("File '" + sample + "' enrolled\n");
+            System.out.println("File '" + image.getFileName() + "' enrolled\n");
         }
 
-        menuMatchFace();
+        menuMatchFace(fileTest);
     }
 
-        //matching
-        public void menuMatchFace() {
+    public java.util.List<Sortable> sim_ind = new ArrayList<Sortable>();
+    public List<String> siuu = new ArrayList<String>();
+    public List<Float> result_similar = new ArrayList<Float>();
+//    public float f = Float.parseFloat(String.valueOf(result_similar));
+    //matching
+    public void menuMatchFace(String file) {
         if (FaceList.isEmpty()) {
             System.out.println("Please enroll faces first");
             return;
         }
 
-        File sample2 = new File("C:\\image\\will2.jpg");
+        File sample2 = new File(file);
 
         TFaceRecord fr = new TFaceRecord();
         fr.ImageFileName = String.valueOf(sample2.getAbsoluteFile());
@@ -202,9 +192,10 @@ public class Match {
         int MatchedCount = 0;
         float SimilarityByReference[] = new float[1];
 
-        java.util.List<Sortable> sim_ind = new ArrayList<Sortable>();
+
+        java.util.List<TFaceRecord> file_name = new ArrayList<TFaceRecord>();
         for (int i = 0; i < FaceList.size(); ++i) {
-            System.out.println("test");
+//            System.out.println("test");
             FSDK.MatchFaces(fr.FaceTemplate, FaceList.get(i).FaceTemplate, SimilarityByReference);
             float Similarity = SimilarityByReference[0];
             if (Similarity >= Threshold) {
@@ -220,6 +211,7 @@ public class Match {
             System.out.printf("No matches found. You can try to increase the FAR parameter in the Options dialog box.");
             FSDK.FreeImage(fr.image);
             FSDK.FreeImage(fr.faceImage);
+            result_similar.add(similar);
             return;
         }
 
@@ -245,10 +237,23 @@ public class Match {
             listImages.add(new ImageIcon(thumbnail[0]));
             listStrings.add("; similarity " + sim_ind.get(i).similarity * 100.0f + "%");
             listModel.addElement(i);
-            System.out.println(listStrings);
+            similar = sim_ind.get(i).similarity * 100.0f;
+            hasil = listStrings.get(i)+", similarity :"+similar + "%";
+            siuu.add(hasil);
+            result_similar.add(similar);
+//            System.out.println(hasil);
+            }
 
+        for (String n : siuu) {
+            System.out.println(n);
         }
-    }
+
+
+        for (float n : result_similar) {
+            System.out.println(n);
+        }
+
     }
 
 
+}
