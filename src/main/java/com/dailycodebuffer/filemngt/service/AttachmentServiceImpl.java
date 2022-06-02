@@ -40,6 +40,16 @@ public class AttachmentServiceImpl implements AttachmentService {
 //                    = new Attachment(fileName,
 //                    file.getContentType(),
 //                    file.getBytes(), file.getBytes(), match.similar, file_id, path,username,attachment.setPassword(encodePassword),no_hp);
+
+            String status;
+            if (match.similar >= 90)
+            {
+                attachment.setStatus("Verify");
+
+            }
+            else {
+                attachment.setStatus("Not Verfiy");
+            }
             attachment.setFileName(fileName);
             attachment.setFileType(file.getContentType());
             attachment.setData(file.getBytes());
@@ -83,6 +93,15 @@ public class AttachmentServiceImpl implements AttachmentService {
     public void updateSimilar(String file_id, float similarity, MultipartFile file) throws IOException {
         attachmentRepository.updateSimilar(file_id, similarity);
         attachmentRepository.updatedata2(file_id,file.getBytes());
+        String status;
+        if (similarity >= 90)
+        {
+            attachmentRepository.updatestatus(file_id,"Verify");
+
+        }
+        else {
+            attachmentRepository.updatestatus(file_id,"Not Verify");
+        }
     }
 //
 //    @Override

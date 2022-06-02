@@ -83,16 +83,18 @@ public class Match {
             if (res != FSDK.FSDKE_OK) {
                 System.out.println("No faces found. Try to lower the Minimal Face Quality parameter in the Options dialog box.");
                 FSDK.FreeImage(fr.image);
+                // error code 0f
+                result_similar.add(0f);
                 return;
             }
 
             fr.faceImage = new FSDK.HImage();
             FSDK.CreateEmptyImage(fr.faceImage);
             FSDK.CopyRect(fr.image,
-                    (int) (fr.FacePosition.xc - fr.FacePosition.w * 0.5),
-                    (int) (fr.FacePosition.yc - fr.FacePosition.w * 0.5),
-                    (int) (fr.FacePosition.xc + fr.FacePosition.w * 0.5),
-                    (int) (fr.FacePosition.yc + fr.FacePosition.w * 0.5), fr.faceImage);
+                (int) (fr.FacePosition.xc - fr.FacePosition.w * 0.5),
+                (int) (fr.FacePosition.yc - fr.FacePosition.w * 0.5),
+                (int) (fr.FacePosition.xc + fr.FacePosition.w * 0.5),
+                (int) (fr.FacePosition.yc + fr.FacePosition.w * 0.5), fr.faceImage);
 
             fr.FacialFeatures = new FSDK.FSDK_Features.ByReference();
             res = FSDK.DetectEyesInRegion(fr.image, fr.FacePosition, fr.FacialFeatures);
@@ -100,6 +102,8 @@ public class Match {
                 System.out.println("Error detecting facial features.");
                 FSDK.FreeImage(fr.image);
                 FSDK.FreeImage(fr.faceImage);
+//                error code 1f
+                result_similar.add(1f);
                 return;
             }
 
@@ -110,6 +114,8 @@ public class Match {
 
                 FSDK.FreeImage(fr.image);
                 FSDK.FreeImage(fr.faceImage);
+                // error code 2f
+                result_similar.add(2f);
                 return;
             }
 
@@ -138,16 +144,17 @@ public class Match {
     public java.util.List<Sortable> sim_ind = new ArrayList<Sortable>();
     public List<String> siuu = new ArrayList<String>();
     public List<Float> result_similar = new ArrayList<Float>();
-//    public float f = Float.parseFloat(String.valueOf(result_similar));
+    //    public float f = Float.parseFloat(String.valueOf(result_similar));
     //matching
     public void menuMatchFace(String file) {
         if (FaceList.isEmpty()) {
             System.out.println("Please enroll faces first");
+            // error code 3f
+            result_similar.add(3f);
             return;
         }
 
         File sample2 = new File(file);
-
         TFaceRecord fr = new TFaceRecord();
         fr.ImageFileName = String.valueOf(sample2.getAbsoluteFile());
         fr.image = new FSDK.HImage();
@@ -155,6 +162,8 @@ public class Match {
         int res = FSDK.LoadImageFromFile(fr.image, String.valueOf(sample2));
         if (res != FSDK.FSDKE_OK) {
             System.out.println("Cannot load ");
+            // error code 4f
+            result_similar.add(4f);
             return;
         }
 
@@ -163,16 +172,18 @@ public class Match {
         if (res != FSDK.FSDKE_OK) {
             System.out.println("No faces found. Try to lower the Minimal Face Quality parameter in the Options dialog box.");
             FSDK.FreeImage(fr.image);
+            // error code 5f
+            result_similar.add(5f);
             return;
         }
 
         fr.faceImage = new FSDK.HImage();
         FSDK.CreateEmptyImage(fr.faceImage);
         FSDK.CopyRect(fr.image,
-                (int) (fr.FacePosition.xc - fr.FacePosition.w * 0.5),
-                (int) (fr.FacePosition.yc - fr.FacePosition.w * 0.5),
-                (int) (fr.FacePosition.xc + fr.FacePosition.w * 0.5),
-                (int) (fr.FacePosition.yc + fr.FacePosition.w * 0.5), fr.faceImage);
+            (int) (fr.FacePosition.xc - fr.FacePosition.w * 0.5),
+            (int) (fr.FacePosition.yc - fr.FacePosition.w * 0.5),
+            (int) (fr.FacePosition.xc + fr.FacePosition.w * 0.5),
+            (int) (fr.FacePosition.yc + fr.FacePosition.w * 0.5), fr.faceImage);
 
         fr.FaceTemplate = new FSDK.FSDK_FaceTemplate.ByReference();
         res = FSDK.GetFaceTemplateInRegion(fr.image, fr.FacePosition, fr.FaceTemplate);
@@ -181,6 +192,8 @@ public class Match {
             System.out.println("Error retrieving face template.");
             FSDK.FreeImage(fr.image);
             FSDK.FreeImage(fr.faceImage);
+            // error code 6f
+            result_similar.add(6f);
             return;
         }
 
@@ -191,7 +204,6 @@ public class Match {
         float Threshold = ThresholdByReference[0];
         int MatchedCount = 0;
         float SimilarityByReference[] = new float[1];
-
 
         java.util.List<TFaceRecord> file_name = new ArrayList<TFaceRecord>();
         for (int i = 0; i < FaceList.size(); ++i) {
@@ -211,7 +223,8 @@ public class Match {
             System.out.printf("No matches found. You can try to increase the FAR parameter in the Options dialog box.");
             FSDK.FreeImage(fr.image);
             FSDK.FreeImage(fr.faceImage);
-            result_similar.add(similar);
+            // error code 7f
+            result_similar.add(7f);
             return;
         }
 
@@ -242,18 +255,14 @@ public class Match {
             siuu.add(hasil);
             result_similar.add(similar);
 //            System.out.println(hasil);
-            }
+        }
 
         for (String n : siuu) {
             System.out.println(n);
         }
 
-
         for (float n : result_similar) {
             System.out.println(n);
         }
-
     }
-
-
 }

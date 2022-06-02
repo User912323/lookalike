@@ -42,4 +42,9 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
     @Transactional
     @Query("update Attachment u set u.data2 = :data2 where u.file_id = :file_id")
     void updatedata2(@Param("file_id") String file_id,@Param("data2") byte[] file);
+
+    @Modifying
+    @Transactional
+    @Query("update Attachment u set u.status = :status where u.file_id = :file_id")
+    void updatestatus(@Param("file_id") String file_id,@Param("status") String status);
 }

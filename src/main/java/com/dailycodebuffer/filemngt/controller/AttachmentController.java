@@ -36,7 +36,8 @@ public class AttachmentController {
     }
 
 //    Path root = Paths.get("uploads");
-    Path root = Paths.get("C:\\Me'\\Intellij\\tes\\coba\\coba\\image");
+    Path root = Paths.get("C:\\Users\\dartmedia\\Documents\\k\\share\\share\\facematch\\coba\\image");
+
 
     public String save(MultipartFile file, String add) {
         try {
@@ -77,6 +78,7 @@ public class AttachmentController {
                 .body(new ByteArrayResource(attachment.getData()));
 
     }
+
 
     @PostMapping("/match")
     public ResponseResult matching(@RequestParam("file") MultipartFile file, @RequestParam String file_id ) throws Exception {
